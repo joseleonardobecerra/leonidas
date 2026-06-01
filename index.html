@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="LEONIDAS — Lector tipo Kindle con anotaciones, OCR y Modo Libro" />
+    <meta name="theme-color" content="#0d0b08" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LEONIDAS" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/leonidas/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/leonidas/favicon.svg" />
+    <link rel="apple-touch-icon" href="/leonidas/icon-192.png" />
+
+    <!-- Fonts preload -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+
+    <title>LEONIDAS — Biblioteca Personal</title>
+
+    <style>
+      html, body, #root { margin: 0; padding: 0; height: 100%; background: #0d0b08; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <div style="background:#0d0b08;color:#c9b99a;font-family:Georgia,serif;text-align:center;padding:60px 20px;">
+        <p style="font-size:24px">📖 LEONIDAS</p>
+        <p>Esta aplicación requiere JavaScript para funcionar.</p>
+      </div>
+    </noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

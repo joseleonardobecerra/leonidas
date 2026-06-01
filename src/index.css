@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Scrollbar invisible ── */
+.no-sb::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-sb,
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Keyframes ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spin { animation: spin 1s linear infinite; }
+
+/* ── Lomo del libro ── */
+.page-spine::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 50px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.15), transparent);
+  pointer-events: none;
+  border-radius: 4px 0 0 4px;
+  z-index: 1;
+}
+
+/* ── Letra capital ── */
+.dropcap {
+  float: left;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 60px;
+  line-height: 0.8;
+  font-weight: 700;
+  color: #8b4513;
+  margin: 8px 10px 0 0;
+}
+
+/* ── Tipografía del Modo Libro ── */
+.book-text {
+  font-family: 'EB Garamond', 'Palatino Linotype', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.85;
+  text-align: justify;
+  text-justify: inter-word;
+  color: #2b2018;
+}
+
+/* ── Range inputs ── */
+input[type='range'] {
+  accent-color: #c8860a;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* ── Responsive helpers ── */
+@media (max-width: 640px) {
+  .sm\:hidden { display: none !important; }
+}
+@media (min-width: 640px) {
+  .hidden.sm\:inline { display: inline !important; }
+}
