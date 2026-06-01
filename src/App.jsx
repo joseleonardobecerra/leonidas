@@ -308,35 +308,24 @@ export default function App() {
     if (!f) return;
     setIsProcessing(true);
     setProcessMsg('Procesando documento...');
-    setDocTitle(f.name?.replace(/\.[^.]+$/, '') ?? '');
+    const title = f.name?.replace(/\.[^.]+$/, '') ?? '';
+    setDocTitle(title);
 
     try {
-      // Save to library first
       const book = await addBookFromFile(f);
+      // Read buffer fresh from the File object (not from book — IndexedDB transfer detaches it)
+      const ab = await f.arrayBuffer();
 
       if (f.type === 'application/pdf') {
         setFileType('pdf');
-        // Try worker first, fallback to main thread
-        const ab = book.fileData || (await f.arrayBuffer());
-        if (workerReady) {
-          setProcessMsg('Cargando PDF en worker...');
-          try {
-            const pages = await loadPdf(ab.slice(0), book.id);
-            await updateBook(book.id, { totalPages: pages });
-            setTotalPages(pages);
-            setFile(book);
-            await openBook({ ...book, totalPages: pages });
-            return;
-          } catch { /* fall through to main thread */ }
-        }
-        // Main-thread fallback
-        setProcessMsg('Renderizando PDF...');
+        setProcessMsg('Cargando PDF...');
         const pdf = await window.pdfjsLib.getDocument({ data: ab }).promise;
         setPdfDoc(pdf);
         setTotalPages(pdf.numPages);
         await updateBook(book.id, { totalPages: pdf.numPages });
-        setFile(book);
+        setFile('pdf'); // use string marker so canvas shows
         await openBook({ ...book, totalPages: pdf.numPages });
+
       } else if (f.type.startsWith('image/')) {
         setFileType('image');
         const url = URL.createObjectURL(f);
@@ -344,11 +333,11 @@ export default function App() {
         setTotalPages(1);
         await openBook(book);
         await renderImage(url);
+
       } else {
-        // Word doc
+        // Word / docx
         setFileType('word');
         setProcessMsg('Convirtiendo Word...');
-        const ab = book.fileData || (await f.arrayBuffer());
         const { value } = await window.mammoth.convertToHtml({ arrayBuffer: ab });
         const div = document.createElement('div');
         div.innerHTML = value;
@@ -380,6 +369,9 @@ export default function App() {
 
   const loadDemo = useCallback(async () => {
     const book = await addDemoBook(DEMO_BOOKS[0]);
+    setFile('sample');
+    setFileType('image');
+    setTotalPages(1);
     setExtractedText(SAMPLE_TEXT);
     setShowTextPanel(true);
     await openBook(book);
@@ -453,10 +445,10 @@ export default function App() {
   }, [pdfDoc, workerReady, activeBook, renderPage, prefetch, restoreDrawing, totalPages]);
 
   useEffect(() => {
-    if (fileType === 'pdf' && (pdfDoc || (workerReady && activeBook))) {
+    if (fileType === 'pdf' && pdfDoc) {
       renderPdfPageCanvas(currentPage);
     }
-  }, [currentPage, pdfDoc, fileType, workerReady]);
+  }, [currentPage, pdfDoc, fileType]);
 
   // ─── Persist progress whenever page changes ───────────────────────────────────
   useEffect(() => {
@@ -799,7 +791,7 @@ export default function App() {
   // READER VIEW
   // ═══════════════════════════════════════════════════════════════════
   const rt = readerTheme;
-  const hasCanvas = file && file !== 'sample' && typeof file !== 'object';
+  const hasCanvas = file && file !== 'sample' && typeof file === 'string';
 
   return (
     <div style={{height:'100vh',display:'flex',flexDirection:'column',overflow:'hidden',background:D.bg,fontFamily:"'Jost',sans-serif"}}
@@ -884,7 +876,7 @@ export default function App() {
       </header>
 
       {/* ── ANNOTATION TOOLBAR ───────────────────────────────────────────────── */}
-      {(file && file !== 'sample') && (
+      {(file && file !== 'sample' && typeof file === 'string') && (
         <div style={{background:D.surface,borderBottom:`1px solid ${D.border}`,overflowX:'auto',flexShrink:0}} className="no-sb">
           <div style={{display:'flex',alignItems:'center',gap:6,padding:'7px 14px',minWidth:'max-content'}}>
             {[
@@ -986,7 +978,7 @@ export default function App() {
             </div>
           )}
 
-          {(file && file!=='sample' && typeof file!=='object') && (
+          {(file && file!=='sample' && typeof file==='string') && (
             <div style={{position:'relative',width:`${zoom}%`,maxWidth:900*(zoom/100),flexShrink:0,opacity:isProcessing?.5:1,cursor:activeTool==='pan'?'grab':'crosshair',touchAction:activeTool==='pan'?'auto':'none'}}>
               <canvas ref={bgCanvasRef}   style={{display:'block',width:'100%',height:'auto',pointerEvents:'none'}}/>
               <canvas ref={drawCanvasRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'auto',pointerEvents:'none'}}/>
@@ -1089,7 +1081,7 @@ export default function App() {
       </main>
 
       {/* ── BOTTOM BAR ───────────────────────────────────────────────────────── */}
-      {(file && file!=='sample') && (
+      {(file && file!=='sample' && typeof file==='string') && (
         <footer style={{height:50,background:D.surface,borderTop:`1px solid ${D.border}`,display:'flex',alignItems:'center',padding:'0 14px',gap:10,flexShrink:0,zIndex:20}}>
           <button onClick={()=>changePage(-1)} disabled={currentPage===1}
             style={{background:D.card,border:`1px solid ${D.border}`,color:D.muted2,padding:'5px 11px',borderRadius:6,fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',gap:4,opacity:currentPage===1?.4:1}}>
