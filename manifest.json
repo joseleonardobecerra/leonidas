@@ -1,0 +1,14 @@
+{
+  "name": "LEONIDAS — Biblioteca Personal",
+  "short_name": "LEONIDAS",
+  "description": "Lector tipo Kindle con anotaciones, OCR y Modo Libro",
+  "start_url": "/leonidas/",
+  "scope": "/leonidas/",
+  "display": "standalone",
+  "background_color": "#0d0b08",
+  "theme_color": "#0d0b08",
+  "lang": "es",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
